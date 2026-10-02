@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="100" fill="#000000"/>
+  <!-- Outer subtle arcade glow -->
+  <circle cx="256" cy="265" r="210" fill="#111111" stroke="#ff3333" stroke-width="8"/>
+  
+  <!-- Antennae -->
+  <line x1="200" y1="120" x2="160" y2="70" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="150" cy="60" r="20" fill="#ffff00"/>
+  
+  <line x1="312" y1="120" x2="352" y2="70" stroke="#ffffff" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="362" cy="60" r="20" fill="#ffff00"/>
+  
+  <!-- Head -->
+  <ellipse cx="256" cy="140" rx="90" ry="60" fill="#111111" stroke="#ffff00" stroke-width="10"/>
+  <!-- Eyes -->
+  <ellipse cx="220" cy="135" rx="18" ry="24" fill="#ffffff"/>
+  <circle cx="224" cy="135" r="10" fill="#00e5ff"/>
+  <ellipse cx="292" cy="135" rx="18" ry="24" fill="#ffffff"/>
+  <circle cx="288" cy="135" r="10" fill="#00e5ff"/>
+
+  <!-- Body / Shell -->
+  <circle cx="256" cy="285" r="160" fill="#e52521" stroke="#ffff00" stroke-width="14"/>
+  
+  <!-- Center Wing Divider -->
+  <line x1="256" y1="125" x2="256" y2="445" stroke="#111111" stroke-width="14"/>
+
+  <!-- Black Spots -->
+  <circle cx="190" cy="225" r="32" fill="#111111"/>
+  <circle cx="322" cy="225" r="32" fill="#111111"/>
+  <circle cx="170" cy="325" r="34" fill="#111111"/>
+  <circle cx="342" cy="325" r="34" fill="#111111"/>
+  <circle cx="215" cy="400" r="22" fill="#111111"/>
+  <circle cx="297" cy="400" r="22" fill="#111111"/>
+
+  <!-- Legs -->
+  <path d="M 100 240 Q 140 250 160 260" stroke="#ffffff" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <path d="M 90 320 Q 135 320 155 330" stroke="#ffffff" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <path d="M 110 395 Q 145 380 170 375" stroke="#ffffff" stroke-width="14" stroke-linecap="round" fill="none"/>
+
+  <path d="M 412 240 Q 372 250 352 260" stroke="#ffffff" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <path d="M 422 320 Q 377 320 357 330" stroke="#ffffff" stroke-width="14" stroke-linecap="round" fill="none"/>
+  <path d="M 402 395 Q 367 380 342 375" stroke="#ffffff" stroke-width="14" stroke-linecap="round" fill="none"/>
+</svg>

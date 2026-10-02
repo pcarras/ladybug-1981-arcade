@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Lady Bug" />
+    <link rel="apple-touch-icon" href="./ladybug-icon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <title>Lady Bug (1981 Arcade Clone)</title>
+    <script type="module" crossorigin src="./assets/index-DHwZcrIK.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-3-11RaLh.css">
+  </head>
+  <body>
+    <!-- CRT Retro Filter Overlay -->
+    <div id="crt-overlay" class="crt-active"></div>
+
+    <!-- Top Quick Bar -->
+    <div id="arcade-top-bar">
+      <button id="btn-crt" class="arcade-pill-btn" title="Alternar filtro CRT">CRT: ON</button>
+      <button id="btn-fullscreen" class="arcade-pill-btn" title="Tela cheia">⛶ CHEIA</button>
+      <button id="btn-pad-toggle" class="arcade-pill-btn" title="Mostrar/ocultar comando virtual">PAD: ON</button>
+      <button id="btn-install" class="arcade-pill-btn install-btn" style="display:none;" title="Instalar aplicativo nativo">INSTALAR 📲</button>
+    </div>
+
+    <!-- Main Game App -->
+    <div id="app"></div>
+
+    <!-- Virtual Arcade Controls for Touch / Mobile -->
+    <div id="arcade-virtual-controls">
+      <!-- Retro D-Pad -->
+      <div class="dpad-container">
+        <button id="dpad-up" class="dpad-btn dpad-up" aria-label="Up">▲</button>
+        <button id="dpad-left" class="dpad-btn dpad-left" aria-label="Left">◀</button>
+        <div class="dpad-center"></div>
+        <button id="dpad-right" class="dpad-btn dpad-right" aria-label="Right">▶</button>
+        <button id="dpad-down" class="dpad-btn dpad-down" aria-label="Down">▼</button>
+      </div>
+
+      <!-- Action / Start Button -->
+      <div class="arcade-action-group">
+        <button id="arcade-btn-start" class="arcade-action-round" aria-label="Start / Tap">
+          <span>START<br>/ TAP</span>
+        </button>
+      </div>
+    </div>
+
+  </body>
+</html>
