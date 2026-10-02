@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ladybug-arcade-v1';
+const CACHE_NAME = 'ladybug-arcade-v0.2.0';
 const PRECACHE_URLS = [
   './',
   './index.html',
@@ -6,6 +6,12 @@ const PRECACHE_URLS = [
   './ladybug-icon.svg',
   './favicon.svg'
 ];
+
+self.addEventListener('message', (event) => {
+  if (event.data && (event.data.action === 'skipWaiting' || event.data === 'skipWaiting')) {
+    self.skipWaiting();
+  }
+});
 
 self.addEventListener('install', (event) => {
   event.waitUntil(

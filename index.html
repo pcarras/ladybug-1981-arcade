@@ -11,19 +11,69 @@
     <link rel="apple-touch-icon" href="./ladybug-icon.svg" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <title>Lady Bug (1981 Arcade Clone)</title>
-    <script type="module" crossorigin src="./assets/index-DHwZcrIK.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-3-11RaLh.css">
+    <script type="module" crossorigin src="./assets/index-D7BqdmN4.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-E6FMeLL7.css">
   </head>
   <body>
     <!-- CRT Retro Filter Overlay -->
     <div id="crt-overlay" class="crt-active"></div>
 
+    <!-- Auto-update notification toast -->
+    <div id="update-toast" class="update-toast hidden">Nova versão detetada! A atualizar...</div>
+
     <!-- Top Quick Bar -->
     <div id="arcade-top-bar">
+      <span class="version-badge">v0.2</span>
+      <button id="btn-ranking" class="arcade-pill-btn" title="Hall of Fame Global">🏆 TOP</button>
       <button id="btn-crt" class="arcade-pill-btn" title="Alternar filtro CRT">CRT: ON</button>
       <button id="btn-fullscreen" class="arcade-pill-btn" title="Tela cheia">⛶ CHEIA</button>
       <button id="btn-pad-toggle" class="arcade-pill-btn" title="Mostrar/ocultar comando virtual">PAD: ON</button>
       <button id="btn-install" class="arcade-pill-btn install-btn" style="display:none;" title="Instalar aplicativo nativo">INSTALAR 📲</button>
+    </div>
+
+    <!-- Global Hall of Fame Modal -->
+    <div id="hall-of-fame-modal" class="modal-overlay hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="modal-trophy">🏆</div>
+          <h2 class="modal-title">HALL OF FAME GLOBAL</h2>
+          <div class="modal-subtitle">TOP ARCADE 1981</div>
+        </div>
+
+        <!-- Score Submission Area -->
+        <div id="hof-submit-section" class="hof-section hidden">
+          <div class="hof-score-badge">
+            <div class="hof-score-label">A TUA PONTUAÇÃO</div>
+            <div id="hof-final-score" class="hof-score-value">0</div>
+            <div id="hof-final-level" class="hof-level-sub">NÍVEL 1</div>
+          </div>
+          <div class="hof-input-group">
+            <input type="text" id="player-name-input" maxlength="10" placeholder="TEU NOME" autocomplete="off" />
+            <button id="btn-submit-score" class="arcade-btn-primary">ENVIAR 🚀</button>
+          </div>
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="hof-leaderboard-container">
+          <div id="hof-loading" class="hof-status">A CARREGAR CLASSIFICAÇÃO GLOBAL...</div>
+          <table id="hof-table" class="hof-table hidden">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>NOME</th>
+                <th>PONTOS</th>
+                <th>LVL</th>
+              </tr>
+            </thead>
+            <tbody id="hof-tbody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btn-close-hof" class="arcade-btn-secondary">JOGAR NOVAMENTE 🔁</button>
+        </div>
+      </div>
     </div>
 
     <!-- Main Game App -->
