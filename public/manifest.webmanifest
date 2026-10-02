@@ -1,0 +1,26 @@
+{
+  "name": "Lady Bug (1981 Arcade)",
+  "short_name": "Lady Bug",
+  "description": "Authentic Universal 1981 Retro Arcade Game Remake",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "categories": ["games", "arcade", "retro"],
+  "icons": [
+    {
+      "src": "./ladybug-icon.svg",
+      "sizes": "512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./ladybug-icon.svg",
+      "sizes": "512x512 any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

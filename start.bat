@@ -1,0 +1,3 @@
+@echo off
+echo Starting Lady Bug (1981 Arcade Clone)...
+npm start

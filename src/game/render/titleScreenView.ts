@@ -58,6 +58,10 @@ class PhaserTitleScreenView implements TitleScreenView {
     this.requestStart();
   };
 
+  private readonly startFromPointer = (): void => {
+    this.requestStart();
+  };
+
   public constructor(scene: Phaser.Scene) {
     this.scene = scene;
   }
@@ -82,6 +86,7 @@ class PhaserTitleScreenView implements TitleScreenView {
     this.addBottomPrompt();
 
     this.scene.input.keyboard?.on('keydown', this.startFromKeyboard);
+    this.scene.input.on('pointerdown', this.startFromPointer);
   }
 
   /** Gently pulses the prompt between white and light grey, like Godot. */
@@ -100,6 +105,7 @@ class PhaserTitleScreenView implements TitleScreenView {
 
   public hide(): void {
     this.scene.input.keyboard?.off('keydown', this.startFromKeyboard);
+    this.scene.input.off('pointerdown', this.startFromPointer);
 
     for (const object of this.objects) {
       object.destroy();
@@ -161,8 +167,32 @@ class PhaserTitleScreenView implements TitleScreenView {
     this.objects.push(logo);
   }
 
+  private addTopHighScore(): void {
+    let highScore = 0;
+    try {
+      const saved = localStorage.getItem('ladybug_retro_arcade_high_score');
+      if (saved) {
+        highScore = parseInt(saved, 10) || 0;
+      }
+    } catch {}
+
+    const highScoreText = createPixelText(this.scene, {
+      text: `HIGH SCORE ${highScore.toString().padStart(6, '0')}`,
+      x: SCREEN.width * 0.5,
+      y: 45,
+      fontSize: 26,
+      tint: 0xffdd00,
+      align: 'center',
+      originY: 0.5,
+      depth: TITLE_SCREEN_DEPTH + 1,
+    });
+    this.objects.push(highScoreText);
+  }
+
   /** Adds the animated ladybug, the PRESS ANY KEY prompt and a fullscreen hint. */
   private addBottomPrompt(): void {
+    this.addTopHighScore();
+
     const logoBottomY = LOGO_CENTER_Y + LOGO_PIXEL_HEIGHT * 0.5;
     const bottomAreaCenterY = logoBottomY + (SCREEN.height - logoBottomY) * 0.5;
 
@@ -176,7 +206,7 @@ class PhaserTitleScreenView implements TitleScreenView {
       .play(TITLE_PLAYER_MOVE_RIGHT);
 
     this.promptText = createPixelText(this.scene, {
-      text: 'PRESS ANY KEY',
+      text: 'PRESS ANY KEY OR TAP',
       x: SCREEN.width * 0.5,
       y: bottomAreaCenterY + PRESS_ANY_KEY_OFFSET_Y,
       fontSize: 26,
@@ -187,11 +217,11 @@ class PhaserTitleScreenView implements TitleScreenView {
     });
 
     this.fullscreenHintText = createPixelText(this.scene, {
-      text: 'PRESS F FOR FULL SCREEN',
+      text: 'ARROWS / WASD / TOUCH SWIPE',
       x: SCREEN.width * 0.5,
       y: bottomAreaCenterY + FULLSCREEN_HINT_OFFSET_Y,
-      fontSize: 26,
-      tint: WHITE,
+      fontSize: 16,
+      tint: 0x00e5ff,
       align: 'center',
       originY: 0.5,
       depth: TITLE_SCREEN_DEPTH + 1,

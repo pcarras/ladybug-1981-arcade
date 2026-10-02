@@ -83,3 +83,198 @@ body.native-pixel-scale #game-container:-webkit-full-screen {
   width: 100vw;
   height: 100vh;
 }
+
+/* ============================================================
+   CRT RETRO SCANLINES & PHOSPHOR VIGNETTE
+   ============================================================ */
+#crt-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#crt-overlay.crt-active {
+  opacity: 1;
+  background: 
+    linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.38) 50%),
+    radial-gradient(circle at center, rgba(16, 24, 16, 0) 60%, rgba(0, 0, 0, 0.65) 100%);
+  background-size: 100% 3px, 100% 100%;
+}
+
+/* ============================================================
+   TOP ARCADE QUICK BAR
+   ============================================================ */
+#arcade-top-bar {
+  position: fixed;
+  top: env(safe-area-inset-top, 10px);
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 10001;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.arcade-pill-btn {
+  background: rgba(22, 22, 22, 0.85);
+  backdrop-filter: blur(4px);
+  color: #ffcc00;
+  border: 1px solid #555;
+  border-radius: 20px;
+  padding: 6px 12px;
+  font-family: 'PressStart2P', monospace, sans-serif;
+  font-size: 10px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
+  transition: transform 0.1s, background 0.15s, border-color 0.15s;
+}
+
+.arcade-pill-btn:hover {
+  border-color: #ffcc00;
+  color: #ffffff;
+}
+
+.arcade-pill-btn:active {
+  transform: scale(0.94);
+  background: #333;
+}
+
+.arcade-pill-btn.install-btn {
+  background: linear-gradient(135deg, #e52521, #b31411);
+  color: #ffffff;
+  border-color: #ffaaaa;
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 5px rgba(229, 37, 33, 0.6); }
+  50% { box-shadow: 0 0 16px rgba(229, 37, 33, 0.9); }
+}
+
+/* ============================================================
+   VIRTUAL ARCADE CONTROLLER (TOUCH & MOBILE)
+   ============================================================ */
+#arcade-virtual-controls {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: min(92vw, 420px);
+  z-index: 10000;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+#arcade-virtual-controls.controls-hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(30px);
+}
+
+/* Retro D-Pad */
+.dpad-container {
+  width: 150px;
+  height: 150px;
+  position: relative;
+  background: radial-gradient(circle, #252525 0%, #111111 100%);
+  border-radius: 50%;
+  border: 3px solid #333;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.85), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.dpad-btn {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  background: #1e1e1e;
+  border: 2px solid #444;
+  border-radius: 8px;
+  color: #00e5ff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.15), 0 3px 6px rgba(0, 0, 0, 0.7);
+  transition: transform 0.08s, background 0.08s;
+}
+
+.dpad-btn:active, .dpad-btn.pressed {
+  background: #e52521;
+  color: #ffffff;
+  border-color: #ffff00;
+  box-shadow: 0 0 15px #e52521;
+  transform: scale(0.92);
+}
+
+.dpad-up { top: 4px; left: 49px; }
+.dpad-down { bottom: 4px; left: 49px; }
+.dpad-left { top: 49px; left: 4px; }
+.dpad-right { top: 49px; right: 4px; }
+
+.dpad-center {
+  position: absolute;
+  top: 49px;
+  left: 49px;
+  width: 46px;
+  height: 46px;
+  background: #151515;
+  border-radius: 6px;
+  pointer-events: none;
+}
+
+/* Action button (Coin / Start) */
+.arcade-action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.arcade-action-round {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff4444, #990000);
+  border: 3px solid #ffaaaa;
+  color: #ffffff;
+  font-family: 'PressStart2P', monospace, sans-serif;
+  font-size: 10px;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.8), inset 0 3px 6px rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  touch-action: none;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+
+.arcade-action-round:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 18px #ff2222;
+}
+
+/* On desktop with mouse/keyboard, keep controls available but subtle */
+@media (min-width: 900px) {
+  #arcade-virtual-controls {
+    bottom: 24px;
+    opacity: 0.85;
+  }
+}
+

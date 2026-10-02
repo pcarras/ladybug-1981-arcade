@@ -55,14 +55,122 @@ function usesNativePixelScale(): boolean {
   return new URLSearchParams(window.location.search).has('native');
 }
 
+function registerServiceWorker(): void {
+  if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').then(
+        (reg) => console.log('[LadyBug PWA] Service Worker active, offline ready:', reg.scope),
+        (err) => console.warn('[LadyBug PWA] Service Worker failed:', err),
+      );
+    });
+  }
+}
+
+function setupArcadeInterface(): void {
+  // CRT filter toggle
+  const crtOverlay = document.getElementById('crt-overlay');
+  const btnCrt = document.getElementById('btn-crt');
+  const toggleCrt = () => {
+    if (!crtOverlay || !btnCrt) return;
+    const isActive = crtOverlay.classList.toggle('crt-active');
+    btnCrt.textContent = isActive ? 'CRT: ON' : 'CRT: OFF';
+  };
+  btnCrt?.addEventListener('click', toggleCrt);
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'KeyC') toggleCrt();
+  });
+
+  // Fullscreen button
+  const btnFullscreen = document.getElementById('btn-fullscreen');
+  btnFullscreen?.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  });
+
+  // Controls visibility toggle
+  const controls = document.getElementById('arcade-virtual-controls');
+  const btnPad = document.getElementById('btn-pad-toggle');
+  btnPad?.addEventListener('click', () => {
+    if (!controls || !btnPad) return;
+    const isHidden = controls.classList.toggle('controls-hidden');
+    btnPad.textContent = isHidden ? 'PAD: OFF' : 'PAD: ON';
+  });
+
+  // PWA Install prompt handler
+  let deferredPrompt: any = null;
+  const btnInstall = document.getElementById('btn-install');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (btnInstall) btnInstall.style.display = 'block';
+  });
+  btnInstall?.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted' && btnInstall) {
+      btnInstall.style.display = 'none';
+    }
+    deferredPrompt = null;
+  });
+
+  // Virtual D-Pad buttons
+  const directions: Array<{ id: string; dir: 'up' | 'down' | 'left' | 'right' }> = [
+    { id: 'dpad-up', dir: 'up' },
+    { id: 'dpad-down', dir: 'down' },
+    { id: 'dpad-left', dir: 'left' },
+    { id: 'dpad-right', dir: 'right' },
+  ];
+
+  for (const { id, dir } of directions) {
+    const btn = document.getElementById(id);
+    if (!btn) continue;
+
+    const handlePress = (e: Event) => {
+      e.preventDefault();
+      btn.classList.add('pressed');
+      window.dispatchEvent(new CustomEvent('ladybug-virtual-direction', { detail: { dir } }));
+    };
+
+    const handleRelease = (e: Event) => {
+      e.preventDefault();
+      btn.classList.remove('pressed');
+    };
+
+    btn.addEventListener('touchstart', handlePress, { passive: false });
+    btn.addEventListener('touchend', handleRelease, { passive: false });
+    btn.addEventListener('mousedown', handlePress);
+    btn.addEventListener('mouseup', handleRelease);
+    btn.addEventListener('mouseleave', handleRelease);
+  }
+
+  // Start / Tap button
+  const btnStart = document.getElementById('arcade-btn-start');
+  const triggerStart = () => {
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter' }));
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      canvas.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+    }
+  };
+
+  btnStart?.addEventListener('click', triggerStart);
+  btnStart?.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    triggerStart();
+  }, { passive: false });
+}
+
 /**
  * Creates the Phaser game once the arcade font is ready enough for the HUD.
- *
- * By default the canvas is fitted uniformly in the browser window, so the whole
- * 800x880 game is visible without scrollbars. Adding ?native=1 keeps the canvas
- * at the exact 800x880 native size for pixel measurements while tuning layout.
  */
 async function bootstrap(): Promise<void> {
+  registerServiceWorker();
+  setupArcadeInterface();
+
   const app = document.querySelector<HTMLDivElement>('#app') ?? document.body;
   const container = document.createElement('div');
   const nativePixelScale = usesNativePixelScale();
@@ -86,8 +194,6 @@ async function bootstrap(): Promise<void> {
       gamepad: true,
     },
     scale: {
-      // Normal mode: uniform fit, useful for playing and previewing the whole
-      // screen. Native mode: no scaling, useful for checking exact pixel gaps.
       mode: nativePixelScale ? Phaser.Scale.NONE : Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },

@@ -46,10 +46,69 @@ export class PlayerInputState {
     down: { direction: VEC2.down, keyboardPressed: false, gamepadPressed: false, order: 0 },
   };
 
+  private touchDirection: Vector2i = VEC2.zero;
+  private pointerStartX = 0;
+  private pointerStartY = 0;
+  private isPointerDown = false;
+
   public constructor(scene: Phaser.Scene) {
     this.scene = scene;
     scene.input.keyboard?.on('keydown', (event: KeyboardEvent) => this.handleKeyDown(event));
     scene.input.keyboard?.on('keyup', (event: KeyboardEvent) => this.handleKeyUp(event));
+
+    const onPointerDown = (pointer: Phaser.Input.Pointer) => {
+      this.isPointerDown = true;
+      this.pointerStartX = pointer.x;
+      this.pointerStartY = pointer.y;
+    };
+
+    const onPointerMove = (pointer: Phaser.Input.Pointer) => {
+      if (!this.isPointerDown) return;
+      const dx = pointer.x - this.pointerStartX;
+      const dy = pointer.y - this.pointerStartY;
+      const threshold = 18;
+      if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+          this.touchDirection = dx > 0 ? VEC2.right : VEC2.left;
+        } else {
+          this.touchDirection = dy > 0 ? VEC2.down : VEC2.up;
+        }
+        this.pointerStartX = pointer.x;
+        this.pointerStartY = pointer.y;
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try { navigator.vibrate(12); } catch {}
+        }
+      }
+    };
+
+    const onPointerUp = () => {
+      this.isPointerDown = false;
+    };
+
+    const onVirtualDirection = (event: Event) => {
+      const customEvent = event as CustomEvent<{ dir: DirectionName | 'stop' }>;
+      const dir = customEvent.detail?.dir;
+      if (dir === 'stop') {
+        this.touchDirection = VEC2.zero;
+      } else if (dir && this.slots[dir]) {
+        this.touchDirection = this.slots[dir].direction;
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try { navigator.vibrate(15); } catch {}
+        }
+      }
+    };
+
+    scene.input.on('pointerdown', onPointerDown);
+    scene.input.on('pointermove', onPointerMove);
+    scene.input.on('pointerup', onPointerUp);
+    window.addEventListener('ladybug-virtual-direction', onVirtualDirection);
+
+    scene.events.once('shutdown', () => {
+      scene.input.off('pointerdown', onPointerDown);
+      scene.input.off('pointermove', onPointerMove);
+      scene.input.off('pointerup', onPointerUp);
+      window.removeEventListener('ladybug-virtual-direction', onVirtualDirection);
+    });
   }
 
   public readPressedDirection(): Vector2i {
@@ -67,7 +126,11 @@ export class PlayerInputState {
       }
     }
 
-    return newestSlot?.direction ?? VEC2.zero;
+    if (newestSlot !== undefined) {
+      return newestSlot.direction;
+    }
+
+    return this.touchDirection;
   }
 
   private handleKeyDown(event: KeyboardEvent): void {
