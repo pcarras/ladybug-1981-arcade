@@ -12,10 +12,11 @@ import {
 
 const ORIGINAL_SCREEN_Y_MIRROR_ORIGIN = 0xdd;
 const COORDINATE_BYTE_MASK = 0xff;
-const ASSISTED_PIXELS_BEFORE_NEXT_LANE = 4;
-const ASSISTED_PIXELS_AFTER_PREVIOUS_LANE = 5;
-const CLOSE_RANGE_PADDING_FOR_VERTICAL_TURNS = 2;
-const CLOSE_RANGE_PADDING_FOR_HORIZONTAL_TURNS = 3;
+// Expanded assist windows to make corner turning smooth and responsive on touch
+const ASSISTED_PIXELS_BEFORE_NEXT_LANE = 8;
+const ASSISTED_PIXELS_AFTER_PREVIOUS_LANE = 8;
+const CLOSE_RANGE_PADDING_FOR_VERTICAL_TURNS = 5;
+const CLOSE_RANGE_PADDING_FOR_HORIZONTAL_TURNS = 5;
 
 /** Arcade-style turn-window policy ported from PlayerTurnWindowResolver.cs. */
 export function choosePlayerTurnWindow(

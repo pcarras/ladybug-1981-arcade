@@ -804,6 +804,13 @@ export class GameScene extends Phaser.Scene {
     this.gameOverTicksRemaining = GAME_OVER_DURATION_TICKS;
     this.arcadeClock.reset();
     this.gameOverView?.showGameOver();
+
+    // Notify UI for Hall of Fame submission
+    window.dispatchEvent(
+      new CustomEvent('ladybug-game-over', {
+        detail: { score: this.scoreState.score, level: this.currentLevelNumber },
+      }),
+    );
   }
 
   private advanceGameOverOneTick(): void {

@@ -217,7 +217,7 @@ class PhaserTitleScreenView implements TitleScreenView {
     });
 
     this.fullscreenHintText = createPixelText(this.scene, {
-      text: 'ARROWS / WASD / TOUCH SWIPE',
+      text: 'UNIVERSAL 1981 • v0.2.0',
       x: SCREEN.width * 0.5,
       y: bottomAreaCenterY + FULLSCREEN_HINT_OFFSET_Y,
       fontSize: 16,
@@ -251,6 +251,11 @@ class PhaserTitleScreenView implements TitleScreenView {
   private requestStart(): void {
     if (!this.visible) {
       return;
+    }
+
+    // Automatically enter fullscreen on user start gesture
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
     }
 
     const callback = this.startCallback;

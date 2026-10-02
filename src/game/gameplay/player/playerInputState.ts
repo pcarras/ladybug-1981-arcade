@@ -56,25 +56,28 @@ export class PlayerInputState {
     scene.input.keyboard?.on('keydown', (event: KeyboardEvent) => this.handleKeyDown(event));
     scene.input.keyboard?.on('keyup', (event: KeyboardEvent) => this.handleKeyUp(event));
 
-    const onPointerDown = (pointer: Phaser.Input.Pointer) => {
+    const onPointerDown = (event: PointerEvent) => {
+      // Don't intercept button clicks on the UI
+      if ((event.target as HTMLElement)?.closest('button, input, select')) return;
       this.isPointerDown = true;
-      this.pointerStartX = pointer.x;
-      this.pointerStartY = pointer.y;
+      this.pointerStartX = event.clientX;
+      this.pointerStartY = event.clientY;
     };
 
-    const onPointerMove = (pointer: Phaser.Input.Pointer) => {
+    const onPointerMove = (event: PointerEvent) => {
       if (!this.isPointerDown) return;
-      const dx = pointer.x - this.pointerStartX;
-      const dy = pointer.y - this.pointerStartY;
-      const threshold = 18;
+      const dx = event.clientX - this.pointerStartX;
+      const dy = event.clientY - this.pointerStartY;
+      const threshold = 12; // Responsive sensitivity
       if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
         if (Math.abs(dx) > Math.abs(dy)) {
           this.touchDirection = dx > 0 ? VEC2.right : VEC2.left;
         } else {
           this.touchDirection = dy > 0 ? VEC2.down : VEC2.up;
         }
-        this.pointerStartX = pointer.x;
-        this.pointerStartY = pointer.y;
+        // Continuous tracking anchor: allows smooth diagonal-to-straight L-turns
+        this.pointerStartX = event.clientX;
+        this.pointerStartY = event.clientY;
         if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
           try { navigator.vibrate(12); } catch {}
         }
@@ -98,15 +101,17 @@ export class PlayerInputState {
       }
     };
 
-    scene.input.on('pointerdown', onPointerDown);
-    scene.input.on('pointermove', onPointerMove);
-    scene.input.on('pointerup', onPointerUp);
+    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('pointerup', onPointerUp, { passive: true });
+    window.addEventListener('pointercancel', onPointerUp, { passive: true });
     window.addEventListener('ladybug-virtual-direction', onVirtualDirection);
 
     scene.events.once('shutdown', () => {
-      scene.input.off('pointerdown', onPointerDown);
-      scene.input.off('pointermove', onPointerMove);
-      scene.input.off('pointerup', onPointerUp);
+      window.removeEventListener('pointerdown', onPointerDown);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
       window.removeEventListener('ladybug-virtual-direction', onVirtualDirection);
     });
   }

@@ -1,12 +1,16 @@
 /**
- * Application entry point. It creates the Phaser game, configures desktop
- * scaling modes, and enables the browser Gamepad API for the scene input layer.
+ * Application entry point for Lady Bug Arcade.
+ * Wires Phaser game, PWA auto-update, auto-fullscreen, responsive scaling,
+ * virtual arcade controls, and the Global Hall of Fame.
  */
 import Phaser from 'phaser';
 import './style.css';
 import { assetUrl } from './game/assets';
 import { FONT, SCREEN } from './game/layout/screenLayout';
 import { GameScene } from './game/scenes/GameScene';
+import { setupHallOfFameUi } from './game/leaderboard/hallOfFame';
+
+export const APP_VERSION = 'v0.2.0';
 
 function installArcadeFontCss(fontUrl: string): void {
   const style = document.createElement('style');
@@ -22,13 +26,6 @@ function installArcadeFontCss(fontUrl: string): void {
   document.head.appendChild(style);
 }
 
-/**
- * Loads the arcade font before Phaser creates text objects.
- *
- * The Godot remake also uses PressStart2P for the HUD. The web version registers
- * that TTF under the simple family name "LadyBugArcade" to avoid browser/canvas
- * quoting problems with font names containing spaces.
- */
 async function loadArcadeFont(): Promise<void> {
   const fontUrl = assetUrl('assets/fonts/PressStart2P-Regular.ttf');
   installArcadeFontCss(fontUrl);
@@ -44,9 +41,6 @@ async function loadArcadeFont(): Promise<void> {
     await document.fonts.load(`${FONT.topSizePx}px ${FONT.family}`);
     await document.fonts.ready;
   } catch (error) {
-    // Keep the game bootable even if the browser cannot load the font. The HUD
-    // will fall back to monospace, making the problem visible without blocking
-    // the playfield preview.
     console.warn('[LadyBugWeb] Could not load arcade HUD font.', error);
   }
 }
@@ -55,15 +49,67 @@ function usesNativePixelScale(): boolean {
   return new URLSearchParams(window.location.search).has('native');
 }
 
-function registerServiceWorker(): void {
+/**
+ * Checks for Service Worker updates on start and when window regains focus.
+ * When a new version is detected, downloads and reloads automatically with a toast notification.
+ */
+function registerServiceWorkerWithAutoUpdate(): void {
   if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').then(
-        (reg) => console.log('[LadyBug PWA] Service Worker active, offline ready:', reg.scope),
-        (err) => console.warn('[LadyBug PWA] Service Worker failed:', err),
-      );
+    window.addEventListener('load', async () => {
+      try {
+        const reg = await navigator.serviceWorker.register('./sw.js');
+        console.log(`[LadyBug PWA ${APP_VERSION}] Service Worker active:`, reg.scope);
+
+        // Always check for latest version on startup
+        void reg.update();
+
+        // Listen for new version updates
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              const toast = document.getElementById('update-toast');
+              if (toast) {
+                toast.textContent = `NOVA VERSÃO ${APP_VERSION} DETETADA! A ATUALIZAR...`;
+                toast.classList.remove('hidden');
+              }
+              newWorker.postMessage({ action: 'skipWaiting' });
+            }
+          });
+        });
+      } catch (err) {
+        console.warn('[LadyBug PWA] Service Worker failed:', err);
+      }
+    });
+
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+
+    // Also check for updates when user switches back to this tab/app
+    window.addEventListener('focus', () => {
+      void navigator.serviceWorker.getRegistration().then((reg) => reg?.update());
     });
   }
+}
+
+/**
+ * Automatically triggers fullscreen on the very first touch/click gesture on screen.
+ */
+function enableAutoFullscreenOnFirstTouch(): void {
+  const enterFs = (e: MouseEvent | TouchEvent | PointerEvent) => {
+    // Don't auto-fullscreen if tapping UI buttons
+    if ((e.target as HTMLElement)?.closest('button, input, select')) return;
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  };
+  window.addEventListener('pointerdown', enterFs, { once: true });
 }
 
 function setupArcadeInterface(): void {
@@ -168,8 +214,10 @@ function setupArcadeInterface(): void {
  * Creates the Phaser game once the arcade font is ready enough for the HUD.
  */
 async function bootstrap(): Promise<void> {
-  registerServiceWorker();
+  registerServiceWorkerWithAutoUpdate();
+  enableAutoFullscreenOnFirstTouch();
   setupArcadeInterface();
+  setupHallOfFameUi();
 
   const app = document.querySelector<HTMLDivElement>('#app') ?? document.body;
   const container = document.createElement('div');
